@@ -29,6 +29,7 @@ impl PinataClient {
     // upload file to pinata. It returns json string of response message (if success)
     async fn upload_file(&self, raw: Vec<u8>, filename: &str) -> UniAxNftResult<IpsfInfo> {
         let form = Form::new()
+            .text("network", "public")
             .part("file", Part::bytes(raw).file_name(filename.to_string()));
 
         let response = self.client

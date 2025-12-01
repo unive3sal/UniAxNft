@@ -1,3 +1,8 @@
+use std::str::FromStr;
+
+use solana_sdk::pubkey::Pubkey;
+use solana_sdk::signature::Keypair;
+
 use crate::error::{UniAxNftErr, UniAxNftResult};
 
 pub struct Config {
@@ -20,7 +25,8 @@ pub struct DatabaseConfig {
 
 pub struct SolanaConfig {
     pub rpc_url: String,
-    pub service_wallet: String,
+    pub service_wallet: Keypair,
+    pub program_id: Pubkey,
 }
 
 pub struct PinataConfig {
@@ -66,9 +72,18 @@ impl Config {
             solana: SolanaConfig {
                 rpc_url: std::env::var("SOLANA_RPC_RUL")
                     .unwrap_or("https://api.devnet.solana.com".to_string()),
-                service_wallet: std::env::var("SOLANA_SERVICE_KEY")
+                service_wallet: Keypair::from_base58_string(
+                    &std::env::var("SOLANA_SERVICE_WALLET")
+                        .map_err(|e| UniAxNftErr::ConfigErr(
+                            format!("environment var SOLANA_SERVICE_WALLET err: {}", e)
+                    ))?),
+                program_id: Pubkey::from_str(
+                    &std::env::var("NFT_PROGRAM_ID")
+                        .map_err(|e| UniAxNftErr::ConfigErr(
+                            format!("environment var NFT_PROGRAM_ID err: {}", e)
+                    ))?)
                     .map_err(|e| UniAxNftErr::ConfigErr(
-                        format!("environment var SOLANA_SERVICE_KEY err: {}", e)
+                        format!("Failed to parse nft program id: {}", e)
                     ))?,
             },
             pinata: PinataConfig {

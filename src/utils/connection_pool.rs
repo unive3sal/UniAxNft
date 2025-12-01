@@ -3,12 +3,12 @@ use std::sync::{
     Mutex
 };
 
-pub struct RpcConnectionPool<T> {
+pub struct ConnectionPool<T> {
     connections: Vec<T>,
     current_idx: Arc<Mutex<usize>>,
 }
 
-impl RpcConnectionPool<T> {
+impl<T> ConnectionPool<T> {
     /* TODO:
     pub fn new(pool_size: usize) -> Self {
         Self {

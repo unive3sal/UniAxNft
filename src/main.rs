@@ -9,7 +9,7 @@ mod services {
 }
 mod state;
 mod utils {
-    pub mod rpc_connection_pool;
+    pub mod connection_pool;
 }
 
 use axum::{
@@ -19,6 +19,9 @@ use axum::{
 
 use config::Config;
 use services::pinata::PinataSrv;
+use services::solana;
+
+use self::services::solana::SolanaClient;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -36,6 +39,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let pinata_srv = PinataSrv::new(config.pinata);
     pinata_srv.upload_file(Vec::from("test from UniAxNft."), "UniAxNft_test").await?;
     println!("upload_file send");
+
+    let solana_srv = SolanaClient::new(config.solana);
+    println!("solana srv connected");
 
     let app = Router::new()
         .route("/health", get(|| async { "OK" }));
