@@ -4,13 +4,13 @@ use solana_sdk::signature::Keypair;
 
 use crate::config::SolanaConfig;
 
-pub struct SolanaClient {
+pub struct NftSrv {
     rpc_client: RpcClient,
     service_wallet: Keypair,
     program_id: Pubkey,
 }
 
-impl SolanaClient {
+impl NftSrv {
     pub fn new(config: SolanaConfig) -> Self {
         Self {
             rpc_client: RpcClient::new(config.rpc_url.clone()),

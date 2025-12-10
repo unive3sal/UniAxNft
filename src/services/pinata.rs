@@ -2,6 +2,7 @@ use reqwest::{
     multipart::*,
     Client
 };
+use tracing::info;
 
 use crate::config::PinataConfig;
 use crate::error::{UniAxNftErr, UniAxNftResult};
@@ -13,26 +14,26 @@ struct IpsfInfo {
     pub cid: String,
 }
 
-struct PinataClient {
-    client: Client,
+pub struct PinataSrv {
+    pinata_client: Client,
     config: PinataConfig,
 }
 
-impl PinataClient {
+impl PinataSrv {
     pub fn new(config: PinataConfig) -> Self {
         Self {
-            client: reqwest::Client::new(),
+            pinata_client: reqwest::Client::new(),
             config: config,
         }
     }
 
     // upload file to pinata. It returns json string of response message (if success)
-    async fn upload_file(&self, raw: Vec<u8>, filename: &str) -> UniAxNftResult<IpsfInfo> {
+    pub async fn upload_file(&self, raw: Vec<u8>, filename: &str) -> UniAxNftResult<IpsfInfo> {
         let form = Form::new()
             .text("network", "public")
             .part("file", Part::bytes(raw).file_name(filename.to_string()));
 
-        let response = self.client
+        let response = self.pinata_client
             .post(format!("{}/files", &self.config.upload_url))
             .bearer_auth(&self.config.jwt)
             .multipart(form)
@@ -54,7 +55,7 @@ impl PinataClient {
             .map_err(|e| UniAxNftErr::PinataErr(
                 format!("Failed to parse response str, err: {}", e)
             ))?;
-        println!("pinata response: {}", response_body_text);
+        info!("pinata response: {}", response_body_text);
 
         let response: serde_json::Value = serde_json::from_str(&response_body_text)
             .map_err(|e| UniAxNftErr::PinataErr(
@@ -87,22 +88,5 @@ impl PinataClient {
                 .map_err(map_to_pinata_err)?
                 .to_string()
         })
-    }
-}
-
-pub struct PinataSrv {
-    pinata_client: PinataClient,
-}
-
-impl PinataSrv {
-    pub fn new(config: PinataConfig) -> Self {
-        Self {
-            pinata_client: PinataClient::new(config),
-        }
-    }
-    pub async fn upload_file(&self, raw: Vec<u8>, filename: &str) -> UniAxNftResult<()> {
-        let response = self.pinata_client.upload_file(raw, filename).await?;
-        println!("{:#?}", response);
-        Ok(())
     }
 }

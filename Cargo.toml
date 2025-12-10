@@ -5,14 +5,23 @@ edition = "2024"
 
 [dependencies]
 axum = "0.8.7"
+axum-extra = { version = "0.12.2", features = ["typed-header"] }
 tokio = { version = "1.48.0", features = ["full"] }
 tower = "0.5.2"
+tower-http = { version = "0.6.7", features = ["auth", "cors", "request-id", "trace"] }
 thiserror = "2.0.17"
 serde = "1.0.228"
 serde_json = "1.0"
+jsonwebtoken = { version = "10.2.0", features = ["rust_crypto"] }
+futures-core = "0.3.31"
+chrono = "0.4.42"
+
+# logging
+tracing = "0.1.43"
+tracing-subscriber = "0.3.22"
 
 # sql-db 
-sqlx = { version = "0.8.6", features = ["runtime-tokio", "tls-native-tls", "postgres"] }
+sqlx = { version = "0.8.6", features = ["runtime-tokio", "tls-native-tls", "postgres", "migrate"] }
 
 # http client
 reqwest = { version = "0.12", features = ["json", "multipart"] }

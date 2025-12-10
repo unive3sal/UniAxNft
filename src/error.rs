@@ -18,12 +18,10 @@ pub enum UniAxNftErr {
     PinataErr(String),
     #[error("Solana error: {0}")]
     SolanaErr(String),
-}
-
-impl From<VarError> for UniAxNftErr {
-    fn from(err: VarError) -> Self {
-        UniAxNftErr::ConfigErr(err.to_string())
-    }
+    #[error("Generate user token failed. err {0}")]
+    AuthErr(String),
+    #[error("Authorization token invalid. err: {0}")]
+    InvalidToken(String),
 }
 
 impl IntoResponse for UniAxNftErr {
@@ -33,6 +31,8 @@ impl IntoResponse for UniAxNftErr {
             UniAxNftErr::DatabaseErr(err) => (StatusCode::INTERNAL_SERVER_ERROR, err),
             UniAxNftErr::PinataErr(err) => (StatusCode::INTERNAL_SERVER_ERROR, err),
             UniAxNftErr::SolanaErr(err) => (StatusCode::INTERNAL_SERVER_ERROR, err),
+            UniAxNftErr::AuthErr(err) => (StatusCode::UNAUTHORIZED, err),
+            UniAxNftErr::InvalidToken(err) => (StatusCode::BAD_REQUEST, err),
         };
 
         let body = Json(json!({
