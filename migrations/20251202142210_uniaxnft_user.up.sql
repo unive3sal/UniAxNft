@@ -9,5 +9,6 @@ CREATE TABLE users (
     last_login_at TIMESTAMP,
     is_active BOOLEAN NOT NULL DEFAULT true
 );
+CREATE INDEX idx_user_id ON users(id);
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_username ON users(username);

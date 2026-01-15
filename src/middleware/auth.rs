@@ -16,20 +16,21 @@ use serde::{Deserialize, Serialize};
 use std::sync::LazyLock;
 use tower_http::auth::AsyncAuthorizeRequest;
 use futures_core::future::BoxFuture;
+use uuid::Uuid;
 
 use crate::error::{UniAxNftErr, UniAxNftResult};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims {
-    pub user_id: u32,
+    pub user_id: Uuid,
     pub email: String,
     pub iat: i64,
     pub exp: i64,
 }
 
 #[derive(Clone)]
-struct UserInfo {
-    pub user_id: u32,
+pub struct UserInfo {
+    pub user_id: Uuid,
     pub email: String,
 }
 
@@ -59,18 +60,18 @@ impl Authorizer {
         let _placeholder = &JWT_KEYPAIR;
     }
 
-    pub fn authorize(user_info: UserInfo) -> UniAxNftResult<String> {
+    pub fn generate_token(user_id: Uuid, email: &str) -> UniAxNftResult<String> {
         let now = Utc::now().timestamp();
         let claims = Claims {
-            user_id: user_info.user_id,
-            email: user_info.email,
+            user_id,
+            email: email.to_string(),
             iat: now,
             exp: now + 3600,
         };
 
         let token = encode(&Header::default(), &claims, &JWT_KEYPAIR.encoding)
             .map_err(|e| UniAxNftErr::AuthErr(e.to_string()))?;
-        Ok(token.to_string())
+        Ok(token)
     }
 
     fn verify_jwt(headers: &HeaderMap) -> UniAxNftResult<UserInfo> {

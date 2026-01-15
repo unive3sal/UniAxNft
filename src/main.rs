@@ -3,6 +3,9 @@ mod database {
     pub mod connection;
 }
 mod error;
+mod handlers {
+    pub mod user;
+}
 mod middleware {
     pub mod auth;
 }
@@ -18,6 +21,7 @@ use axum::{
     routing::{
         get,
         post,
+        put,
         patch,
         delete,
     },
@@ -36,6 +40,7 @@ use tracing::{info, Level};
 use tracing_subscriber;
 
 use config::Config;
+use handlers::user::{user_register, user_login, change_password};
 use middleware::auth;
 
 #[tokio::main]
@@ -75,10 +80,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .max_age(Duration::from_secs(3600));
 
     let protected_routes = Router::new()
+        .route("/user/change_pwd", put(change_password))
         /*
-        .route("/change_pwd", put(change_password))
-        .route("/user/:user_id", get(handler))
-        .route("/users/:user_id/nfts?page=1&limit=20&sort=created_at&order=desc", get(handler))
+        .route("/users/:user_id/nfts?page=1&limit=20&sort=created_at&order=desc", get(user_nft_info))
         .route("/nfts", post(handler))
         .route("/nfts/:nft_id", get(handler))
         .route("/nfts/:nft_id/status", get(handler))
@@ -89,8 +93,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_state(state.clone());
 
     let public_routes = Router::new()
-        //.route("/auth/register", post(user_register))
-        //.route("/auth/login", post(user_login));
+        .route("/auth/register", post(user_register))
+        .route("/auth/login", post(user_login))
         .with_state(state.clone());
 
     let app = Router::new()
