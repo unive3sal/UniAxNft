@@ -62,6 +62,7 @@ A backend API for NFT management built with Rust, Axum, Solana, and IPFS (Pinata
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `PUT` | `/api/v1/user/change_pwd` | Change password |
+| `GET` | `/api/v1/user/{user_id}/nfts` | Get user NFT information |
 
 ## Running
 

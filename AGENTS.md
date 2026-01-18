@@ -217,6 +217,11 @@ sqlx::query!("SELECT * FROM users WHERE id = $1", user_id)
 Protected routes use `AsyncRequireAuthorizationLayer` with custom `Authorizer`.
 JWT tokens contain: `user_id`, `email`, `iat`, `exp` (1 hour expiry).
 
+### API URL Conventions
+
+- Use singular `/user/` prefix for user-related routes (not `/users/`)
+- Path parameters use curly braces: `/user/{user_id}/nfts`
+
 ## Files to Never Commit
 
 Per `.gitignore`:

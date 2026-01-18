@@ -42,75 +42,72 @@ impl Config {
     pub fn from_env() -> UniAxNftResult<Config> {
         let config = Config {
             server: ServerConfig {
-                host: std::env::var("SERVER_HOST")
-                        .unwrap_or("0.0.0.0".to_string()),
+                host: std::env::var("SERVER_HOST").unwrap_or("0.0.0.0".to_string()),
                 port: std::env::var("SERVER_PORT")
                     .unwrap_or("8080".to_string())
                     .parse()
-                    .map_err(|_| UniAxNftErr::ConfigErr(
-                        "parse environment var SERVER_PORT err.".to_string()
-                    ))?,
+                    .map_err(|_| {
+                        UniAxNftErr::ConfigErr("parse environment var SERVER_PORT err.".to_string())
+                    })?,
             },
             database: DatabaseConfig {
-                url: std::env::var("DATABASE_URL")
-                    .map_err(|e| UniAxNftErr::ConfigErr(
-                        format!("environment var DATABASE_URL err: {}", e)
-                    ))?,
+                url: std::env::var("DATABASE_URL").map_err(|e| {
+                    UniAxNftErr::ConfigErr(format!("environment var DATABASE_URL err: {}", e))
+                })?,
                 min_connections: std::env::var("DATABASE_MIN_CONN")
                     .unwrap_or("5".to_string())
                     .parse()
-                    .map_err(|_| UniAxNftErr::ConfigErr(
-                        "parse environment var DATABASE_MIN_CONN err".to_string()
-                    ))?,
+                    .map_err(|_| {
+                        UniAxNftErr::ConfigErr(
+                            "parse environment var DATABASE_MIN_CONN err".to_string(),
+                        )
+                    })?,
                 max_connections: std::env::var("DATABASE_MAX_CONN")
                     .unwrap_or("20".to_string())
                     .parse()
-                    .map_err(|_| UniAxNftErr::ConfigErr(
-                        "parse environment var DATABASE_MAX_CONN err.".to_string()
-                    ))?,
+                    .map_err(|_| {
+                        UniAxNftErr::ConfigErr(
+                            "parse environment var DATABASE_MAX_CONN err.".to_string(),
+                        )
+                    })?,
             },
             solana: SolanaConfig {
                 rpc_url: std::env::var("SOLANA_RPC_RUL")
                     .unwrap_or("https://api.devnet.solana.com".to_string()),
                 service_wallet: Keypair::from_base58_string(
-                    &std::env::var("SOLANA_SERVICE_WALLET")
-                        .map_err(|e| UniAxNftErr::ConfigErr(
-                            format!("environment var SOLANA_SERVICE_WALLET err: {}", e)
-                    ))?),
-                program_id: Pubkey::from_str(
-                    &std::env::var("NFT_PROGRAM_ID")
-                        .map_err(|e| UniAxNftErr::ConfigErr(
-                            format!("environment var NFT_PROGRAM_ID err: {}", e)
-                    ))?)
-                    .map_err(|e| UniAxNftErr::ConfigErr(
-                        format!("Failed to parse nft program id: {}", e)
-                    ))?,
+                    &std::env::var("SOLANA_SERVICE_WALLET").map_err(|e| {
+                        UniAxNftErr::ConfigErr(format!(
+                            "environment var SOLANA_SERVICE_WALLET err: {}",
+                            e
+                        ))
+                    })?,
+                ),
+                program_id: Pubkey::from_str(&std::env::var("NFT_PROGRAM_ID").map_err(|e| {
+                    UniAxNftErr::ConfigErr(format!("environment var NFT_PROGRAM_ID err: {}", e))
+                })?)
+                .map_err(|e| {
+                    UniAxNftErr::ConfigErr(format!("Failed to parse nft program id: {}", e))
+                })?,
             },
             pinata: PinataConfig {
-                gateway: std::env::var("PINATA_GATEWAY")
-                    .map_err(|e| UniAxNftErr::ConfigErr(
-                        format!("environment var PINATA_GATEWAY err: {}", e)
-                    ))?,
-                upload_url: std::env::var("PINATA_UPLOAD_URL")
-                    .map_err(|e| UniAxNftErr::ConfigErr(
-                        format!("environment var PINATA_UPLOAD_URL err: {}", e)
-                    ))?,
-                api_url: std::env::var("PINATA_API_URL")
-                    .map_err(|e| UniAxNftErr::ConfigErr(
-                        format!("environment var PINATA_API_URL err: {}", e)
-                    ))?,
-                api_key: std::env::var("PINATA_API_KEY")
-                    .map_err(|e| UniAxNftErr::ConfigErr(
-                        format!("environment var PINATA_API_KEY err: {}", e)
-                    ))?,
-                api_secret: std::env::var("PINATA_API_SECRET")
-                    .map_err(|e| UniAxNftErr::ConfigErr(
-                        format!("environment var PINATA_API_SECRET err: {}", e)
-                    ))?,
-                jwt: std::env::var("PINATA_JWT")
-                    .map_err(|e| UniAxNftErr::ConfigErr(
-                        format!("environment var PINATA_JWT err: {}", e)
-                    ))?,
+                gateway: std::env::var("PINATA_GATEWAY").map_err(|e| {
+                    UniAxNftErr::ConfigErr(format!("environment var PINATA_GATEWAY err: {}", e))
+                })?,
+                upload_url: std::env::var("PINATA_UPLOAD_URL").map_err(|e| {
+                    UniAxNftErr::ConfigErr(format!("environment var PINATA_UPLOAD_URL err: {}", e))
+                })?,
+                api_url: std::env::var("PINATA_API_URL").map_err(|e| {
+                    UniAxNftErr::ConfigErr(format!("environment var PINATA_API_URL err: {}", e))
+                })?,
+                api_key: std::env::var("PINATA_API_KEY").map_err(|e| {
+                    UniAxNftErr::ConfigErr(format!("environment var PINATA_API_KEY err: {}", e))
+                })?,
+                api_secret: std::env::var("PINATA_API_SECRET").map_err(|e| {
+                    UniAxNftErr::ConfigErr(format!("environment var PINATA_API_SECRET err: {}", e))
+                })?,
+                jwt: std::env::var("PINATA_JWT").map_err(|e| {
+                    UniAxNftErr::ConfigErr(format!("environment var PINATA_JWT err: {}", e))
+                })?,
             },
         };
 

@@ -1,15 +1,12 @@
-use std::sync::Arc;
 use sqlx::PgPool;
+use std::sync::Arc;
 
 use crate::config::ServerConfig;
 use crate::error::UniAxNftErr;
 use crate::middleware::auth::Authorizer;
 use crate::{
-    config::Config,
-    database,
-    error::UniAxNftResult,
-    services::nft::NftSrv,
-    services::pinata::PinataSrv
+    config::Config, database, error::UniAxNftResult, services::nft::NftSrv,
+    services::pinata::PinataSrv,
 };
 
 #[derive(Clone)]
@@ -26,14 +23,13 @@ impl UniAxNftState {
             &config.database.url,
             config.database.max_connections,
             config.database.min_connections,
-        ).await?;
+        )
+        .await?;
 
         sqlx::migrate!("./migrations")
             .run(&db)
             .await
-            .map_err(|e| UniAxNftErr::DatabaseErr(
-                format!("PgSql migration err: {}", e)
-            ))?;
+            .map_err(|e| UniAxNftErr::DatabaseErr(format!("PgSql migration err: {}", e)))?;
 
         let pinata = Arc::new(PinataSrv::new(config.pinata));
         let nft = Arc::new(NftSrv::new(config.solana));

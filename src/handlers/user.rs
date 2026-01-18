@@ -1,4 +1,4 @@
-use axum::{extract::State, http::StatusCode, response::IntoResponse, Extension, Json};
+use axum::{Extension, Json, extract::State, http::StatusCode, response::IntoResponse};
 use serde::{Deserialize, Serialize};
 use sqlx::Row;
 use uuid::Uuid;
@@ -102,7 +102,9 @@ pub async fn user_login(
         .map_err(|e| UniAxNftErr::AuthErr(format!("Password verification failed: {}", e)))?;
 
     if !password_valid {
-        return Err(UniAxNftErr::AuthErr("Invalid email or password".to_string()));
+        return Err(UniAxNftErr::AuthErr(
+            "Invalid email or password".to_string(),
+        ));
     }
 
     // Update last_login_at
@@ -154,18 +156,22 @@ pub async fn change_password(
         .map_err(|e| UniAxNftErr::AuthErr(format!("Password verification failed: {}", e)))?;
 
     if !password_valid {
-        return Err(UniAxNftErr::AuthErr("Current password is incorrect".to_string()));
+        return Err(UniAxNftErr::AuthErr(
+            "Current password is incorrect".to_string(),
+        ));
     }
 
     let new_password_hash = bcrypt::hash(&payload.new_password, bcrypt::DEFAULT_COST)
         .map_err(|e| UniAxNftErr::AuthErr(format!("Failed to hash password: {}", e)))?;
 
-    sqlx::query(r#"UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2"#)
-        .bind(&new_password_hash)
-        .bind(user_info.user_id)
-        .execute(&state.db)
-        .await
-        .map_err(|e| UniAxNftErr::DatabaseErr(format!("Failed to update password: {}", e)))?;
+    sqlx::query(
+        r#"UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2"#,
+    )
+    .bind(&new_password_hash)
+    .bind(user_info.user_id)
+    .execute(&state.db)
+    .await
+    .map_err(|e| UniAxNftErr::DatabaseErr(format!("Failed to update password: {}", e)))?;
 
     Ok(StatusCode::NO_CONTENT)
 }

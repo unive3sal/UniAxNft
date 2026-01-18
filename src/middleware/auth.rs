@@ -1,21 +1,14 @@
 use axum::body::Body;
-use axum::http::{Request, Response, HeaderMap};
+use axum::http::{HeaderMap, Request, Response};
 use axum::response::IntoResponse;
 use axum_extra::headers::authorization::Bearer;
 use axum_extra::headers::{Authorization, HeaderMapExt};
 use chrono::Utc;
-use jsonwebtoken::{
-    decode,
-    encode,
-    DecodingKey,
-    EncodingKey,
-    Header,
-    Validation
-};
+use futures_core::future::BoxFuture;
+use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
 use std::sync::LazyLock;
 use tower_http::auth::AsyncAuthorizeRequest;
-use futures_core::future::BoxFuture;
 use uuid::Uuid;
 
 use crate::error::{UniAxNftErr, UniAxNftResult};
@@ -83,16 +76,16 @@ impl Authorizer {
         let token_data = decode::<Claims>(
             bearer.token(),
             &JWT_KEYPAIR.decoding,
-            &Validation::default()
-        ).map_err(|e| UniAxNftErr::InvalidToken(e.to_string()))?;
+            &Validation::default(),
+        )
+        .map_err(|e| UniAxNftErr::InvalidToken(e.to_string()))?;
 
         Ok(UserInfo {
             user_id: token_data.claims.user_id,
-            email: token_data.claims.email
+            email: token_data.claims.email,
         })
     }
 }
-
 
 impl AsyncAuthorizeRequest<Body> for Authorizer {
     type RequestBody = Body;
@@ -105,11 +98,9 @@ impl AsyncAuthorizeRequest<Body> for Authorizer {
                 Ok(user_info) => {
                     request.extensions_mut().insert(user_info);
                     Ok(request)
-                },
+                }
                 Err(e) => Err(e.into_response()),
             }
         })
     }
 }
-
-

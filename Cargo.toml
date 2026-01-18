@@ -16,13 +16,14 @@ serde_json = "1.0"
 jsonwebtoken = { version = "10.2.0", features = ["rust_crypto"] }
 futures-core = "0.3.31"
 chrono = "0.4.42"
+time = "0.3"
 
 # logging
 tracing = "0.1.43"
 tracing-subscriber = "0.3.22"
 
 # sql-db
-sqlx = { version = "0.8.6", features = ["runtime-tokio", "tls-native-tls", "postgres", "migrate", "uuid"] }
+sqlx = { version = "0.8.6", features = ["runtime-tokio", "tls-native-tls", "postgres", "migrate", "uuid", "time"] }
 
 # password hashing
 bcrypt = "0.17"

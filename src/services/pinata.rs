@@ -1,7 +1,4 @@
-use reqwest::{
-    multipart::*,
-    Client
-};
+use reqwest::{Client, multipart::*};
 use tracing::info;
 
 use crate::config::PinataConfig;
@@ -33,44 +30,40 @@ impl PinataSrv {
             .text("network", "public")
             .part("file", Part::bytes(raw).file_name(filename.to_string()));
 
-        let response = self.pinata_client
+        let response = self
+            .pinata_client
             .post(format!("{}/files", &self.config.upload_url))
             .bearer_auth(&self.config.jwt)
             .multipart(form)
             .send()
             .await
-            .map_err(|e| UniAxNftErr::PinataErr(
-                format!("upload file err: {}", e)
-            ))?;
+            .map_err(|e| UniAxNftErr::PinataErr(format!("upload file err: {}", e)))?;
 
         if !response.status().is_success() {
-            return Err(UniAxNftErr::PinataErr(
-                format!("unexpected response: {}", response.status())
-            ));
+            return Err(UniAxNftErr::PinataErr(format!(
+                "unexpected response: {}",
+                response.status()
+            )));
         }
 
-        let response_body_text = response
-            .text()
-            .await
-            .map_err(|e| UniAxNftErr::PinataErr(
-                format!("Failed to parse response str, err: {}", e)
-            ))?;
+        let response_body_text = response.text().await.map_err(|e| {
+            UniAxNftErr::PinataErr(format!("Failed to parse response str, err: {}", e))
+        })?;
         info!("pinata response: {}", response_body_text);
 
-        let response: serde_json::Value = serde_json::from_str(&response_body_text)
-            .map_err(|e| UniAxNftErr::PinataErr(
-                format!("Failed to parse response json, err: {}", e)
-            ))?;
+        let response: serde_json::Value =
+            serde_json::from_str(&response_body_text).map_err(|e| {
+                UniAxNftErr::PinataErr(format!("Failed to parse response json, err: {}", e))
+            })?;
         let response_data = &response["data"];
         if response_data.is_null() {
             return Err(UniAxNftErr::PinataErr(
-                "Failed to find \"data\" in response body".to_string()
+                "Failed to find \"data\" in response body".to_string(),
             ));
         }
 
-        let map_to_pinata_err = |e| UniAxNftErr::PinataErr(
-            format!("illegal json k-v field, err field: {}", e)
-        );
+        let map_to_pinata_err =
+            |e| UniAxNftErr::PinataErr(format!("illegal json k-v field, err field: {}", e));
         Ok(IpsfInfo {
             id: response_data["id"]
                 .as_str()
@@ -86,7 +79,7 @@ impl PinataSrv {
                 .as_str()
                 .ok_or("cid")
                 .map_err(map_to_pinata_err)?
-                .to_string()
+                .to_string(),
         })
     }
 }

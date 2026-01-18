@@ -3,10 +3,10 @@ use std::env::VarError;
 use axum::{
     Json,
     http::StatusCode,
-    response::{IntoResponse, Response}
+    response::{IntoResponse, Response},
 };
-use thiserror::Error;
 use serde_json::json;
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum UniAxNftErr {
